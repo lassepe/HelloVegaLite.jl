@@ -3,21 +3,27 @@ using Random: MersenneTwister
 
 rng = MersenneTwister(1)
 data = [
-        [(; x, y = sin(x) + rand(rng), class = "sin") for x in -3:0.01:3];
-        [(; x, y = cos(x) + rand(rng), class = "cos") for x in -3:0.01:3];
-       ]
+    [(; x, y = sin(x) + rand(rng), class = "sin") for x in -3:0.025:3]
+    [(; x, y = cos(x) + rand(rng), class = "cos") for x in -3:0.025:3]
+]
 
 data |>
 @vlplot(
-    width = 500,
-    height = 500,
+    width = 800,
+    height = 800,
     x = {"x", type = "quantitative"},
     y = {type = "quantitative"},
     color = "class",
     transform = [
-        {window = [{field = "y", op = "mean", as = "rolling_mean"}], frame = [-10, 10]},
-        {window = [{field = "y", op = "ci0", as = "rolling_q1"}], frame = [-10, 10]},
-        {window = [{field = "y", op = "ci1", as = "rolling_q3"}], frame = [-10, 10]},
+        {
+            window = [
+                {field = "y", op = "mean", as = "rolling_mean"},
+                {field = "y", op = "ci0", as = "rolling_q1"},
+                {field = "y", op = "ci1", as = "rolling_q3"},
+            ],
+            groupby = ["class"], # TODO: I think this is a bug. Should work without this!
+            frame = [-10, 10],
+        },
     ],
 ) +
 @vlplot(mark = {"point", tooltip = true, opacity = 0.1}, y = "y") +
